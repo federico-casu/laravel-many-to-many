@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Storage;
@@ -28,8 +29,9 @@ class ProjectController extends Controller
     {
 
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('pages.projects.create', compact('types'));
+        return view('pages.projects.create', compact('types', 'technologies'));
     }
 
     /**
@@ -45,7 +47,7 @@ class ProjectController extends Controller
 
 
         if ($request->hasFile('cover_image')) {
-            
+
             $path = Storage::disk('public')->put('project_covers', $request->cover_image);
 
             $validated_data['cover_image'] = $path;
@@ -55,7 +57,11 @@ class ProjectController extends Controller
         }
 
 
-            $newProject = Project::create($validated_data);
+        $newProject = Project::create($validated_data);
+
+        if ($request->has('technologies')) {
+            $newProject->technologies()->attach($request->technologies);
+        }
 
         return redirect()->route('dashboard.projects.index');
     }
@@ -74,8 +80,9 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('pages.projects.edit', compact('project', 'types'));
+        return view('pages.projects.edit', compact('project', 'types', 'technologies'));
     }
 
     /**
@@ -88,8 +95,8 @@ class ProjectController extends Controller
         $validated_data['repo_name'] = Project::generateRepoName($request->title);
 
 
-        if ( $request->hasFile('cover_image') ) {
-            if ( $project->cover_image ) {
+        if ($request->hasFile('cover_image')) {
+            if ($project->cover_image) {
                 Storage::delete($project->cover_image);
             }
 
@@ -101,6 +108,10 @@ class ProjectController extends Controller
 
         $project->update($validated_data);
 
+        if ($request->has('technologies')) {
+            $project->technologies()->sync($request->technologies);
+        }
+
         return redirect()->route('dashboard.projects.index');
     }
 
@@ -109,6 +120,12 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
+        $project->technologies()->sync([]);
+
+        if ($project->cover_image) {
+            Storage::delete($project->cover_image);
+        }
+
         $project->delete();
 
         return redirect()->route('dashboard.projects.index');

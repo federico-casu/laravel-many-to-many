@@ -20,7 +20,8 @@
 
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control @error ('title') is-invalid @enderror" name="title" id="title" />
+                <input type="text" class="form-control @error('title') is-invalid @enderror" name="title"
+                    id="title" />
 
                 @error('title')
                     <div class="alert alert-danger">
@@ -36,18 +37,39 @@
 
             <div class="mb-3">
                 <label for="type_id" class="form-label">Type</label>
-                <select
-                    class="form-select form-select-lg @error('type_id') is_invalid @enderror"
-                    name="type_id"
-                    id="type_id"
-                >
+                <select class="form-select form-select-lg @error('type_id') is_invalid @enderror" name="type_id"
+                    id="type_id">
                     <option selected value="">Select one</option>
                     @foreach ($types as $type)
-                        <option value="{{ $type->id }} {{ $type->id == old('type_id') ? 'selected' : '' }}">{{ $type->name }}</option>
+                        <option value="{{ $type->id }} {{ $type->id == old('type_id') ? 'selected' : '' }}">
+                            {{ $type->name }}</option>
                     @endforeach
                 </select>
             </div>
-            
+
+            <div class="mb-3">
+                <span class="form-label d-block">Technologies</span>
+                {{-- @foreach ($technologies as $technology)
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="technologies" name="technologies[]"
+                            value="{{ $technology->id }}" />
+                        <label class="form-check-label" for="technologies">{{ $technology->name }}</label>
+                    </div>
+                @endforeach --}}
+                @forelse ($technologies as $technology)
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="technologies" name="technologies[]"
+                            value="{{ $technology->id }}" />
+                        <label class="form-check-label" for="technologies">{{ $technology->name }}</label>
+                    </div>
+                @empty
+
+                    <span>There are no technologies</span>
+
+                @endforelse
+            </div>
+
+
 
             <div class="mb-3">
                 <label for="repo_link" class="form-label">Repository link</label>
