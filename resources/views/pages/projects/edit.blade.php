@@ -45,24 +45,45 @@
 
             <div class="mb-3">
                 <label for="type_id" class="form-label">Type</label>
-                <select
-                    class="form-select form-select-lg @error('type_id') is_invalid @enderror"
-                    name="type_id"
-                    id="type_id"
-                >
+                <select class="form-select form-select-lg @error('type_id') is_invalid @enderror" name="type_id"
+                    id="type_id">
                     <option selected value="">Select one</option>
                     @foreach ($types as $type)
-                        <option 
-                        value="{{ $type->id }}" 
-                        {{ $type->id == old('type_id', $project->type ? $project->type->id : '') ? 'selected' : '' }}
-                        >{{ $type->name }}</option>
+                        <option value="{{ $type->id }}"
+                            {{ $type->id == old('type_id', $project->type ? $project->type->id : '') ? 'selected' : '' }}>
+                            {{ $type->name }}</option>
                     @endforeach
                 </select>
             </div>
 
+
+            <div class="mb-3">
+                <span class="form-label d-block">Technologies</span>
+                @forelse ($technologies as $technology)
+                    @if ($errors->any())
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="technologies" name="technologies[]"
+                                value="{{ $technology->id }}" {{ in_array($technology->id, old('technologies', [])) ? 'checked' : '' }} />
+                            <label class="form-check-label" for="technologies">{{ $technology->name }}</label>
+                        </div>
+                    @else
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="technologies" name="technologies[]"
+                                value="{{ $technology->id }}" {{ $project->technologies->contains($technology->id) ? 'checked' : '' }} />
+                            <label class="form-check-label" for="technologies">{{ $technology->name }}</label>
+                        </div>
+                    @endif
+                @empty
+
+                    <span>There are no technologies</span>
+                @endforelse
+            </div>
+
+
             <div class="mb-3">
                 <label for="repo_link" class="form-label">Repository link</label>
-                <input type="text" class="form-control" name="repo_link" id="repo_link" value="{{ old('repo_link') ?? $project->repo_link }}" />
+                <input type="text" class="form-control" name="repo_link" id="repo_link"
+                    value="{{ old('repo_link') ?? $project->repo_link }}" />
             </div>
 
 
